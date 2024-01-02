@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      :root {
+        font-size: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      *,
+      input::placeholder,
+      textarea::placeholder {
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      }
+
+      .link {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 1em;
+      }
+
+      .form {
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      .product-name,
+      .product-review,
+      .submit-btn {
+        border: 1px solid black;
+      }
+
+      .submit-btn {
+        cursor: pointer;
+        background-color: black;
+        color: white;
+      }
+
+      .product-name,
+      .product-review,
+      .submit-btn,
+      .error-msg {
+        display: block;
+        margin: 0;
+        width: 100%;
+        font-size: 1rem;
+        margin-bottom: 1em;
+      }
+
+      .product-review {
+        resize: vertical;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="link" href="2.html">Отзывы</a>
+    <form class="form">
+      <input
+        class="product-name"
+        type="text"
+        name="product-name"
+        id="product-name"
+        placeholder="Название товара"
+      />
+      <textarea
+        class="product-review"
+        name="product-review"
+        id="product-review"
+        placeholder="Ваш отзыв"
+      ></textarea>
+      <button class="submit-btn" type="submit">Отправить отзыв</button>
+      <div class="error-msg"></div>
+    </form>
+    <script>
+      const productNameField = document.getElementById("product-name");
+      const productReviewField = document.getElementById("product-review");
+      const errorMsgDiv = document.querySelector(".error-msg");
+
+      const processReview = (e) => {
+        e.preventDefault();
+        errorMsgDiv.textContent = "";
+
+        const productName = productNameField.value;
+        const productReview = productReviewField.value;
+
+        if (productName.length === 0 && productReview.length === 0) {
+          errorMsgDiv.textContent = "Оба поля должны быть заполнены!";
+        } else if (productName.length === 0) {
+          errorMsgDiv.textContent = "Введите название продукта!";
+        } else if (productReview.length === 0) {
+          errorMsgDiv.textContent = "Оставьте отзыв!";
+        } else {
+          const data = JSON.parse(localStorage.getItem("gb-hw3-reviews")) ?? [];
+          const productIndex = data.findIndex((product) => {
+            return product.name == productName;
+          });
+
+          if (productIndex === -1) {
+            data.push({ name: productName, reviews: [productReview] });
+          } else {
+            data[productIndex].reviews.push(productReview);
+          }
+
+          localStorage.setItem("gb-hw3-reviews", JSON.stringify(data));
+
+          productNameField.value = "";
+          productReviewField.value = "";
+        }
+      };
+
+      document.querySelector(".form").addEventListener("submit", processReview);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      :root {
+        font-size: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      *,
+      input::placeholder,
+      textarea::placeholder {
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      }
+
+      .link {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 1em;
+      }
+
+      .review {
+        margin-bottom: 0.5em;
+      }
+
+      .review__list:not(.review__list_hidden) {
+        margin-bottom: 0.5em;
+      }
+
+      .review__list_hidden {
+        display: none;
+      }
+
+      .review__header {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+      }
+
+      .review__wrapper {
+        border: 1px solid black;
+        margin: 0 auto;
+        padding: 0 1em;
+        width: 50%;
+      }
+
+      .review__wrapper:not(:last-child) {
+        margin-bottom: 0.5em;
+      }
+
+      .review__title {
+        margin: 0.5em 0;
+      }
+
+      .review__text {
+        margin-bottom: 1em;
+      }
+
+      .review__toggle-btn,
+      .review__delete-btn {
+        display: block;
+        border: none;
+        background-color: black;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="link" href="1.html">Оставить отзыв</a>
+    <div class="reviews"></div>
+    <script>
+      const reviewsEl = document.querySelector(".reviews");
+
+      const setUpButtons = (allReviews, renderReviews) => {
+        const toggleBtns = document.querySelectorAll(".review__toggle-btn");
+        const reviewListEls = document.querySelectorAll(".review__list");
+        const deleteBtns = document.querySelectorAll(".review__delete-btn");
+
+        toggleBtns.forEach((btn, i) => {
+          btn.addEventListener("click", () => {
+            btn.textContent =
+              btn.textContent.trim() === "Показать отзывы"
+                ? "Скрыть отзывы"
+                : "Показать отзывы";
+
+            reviewListEls[i].classList.toggle("review__list_hidden");
+          });
+        });
+
+        deleteBtns.forEach((btn, i) => {
+          btn.addEventListener("click", () => {
+            const productIndex = allReviews.findIndex(
+              (review) => review.name === btn.dataset.productName
+            );
+            allReviews[productIndex].reviews.splice(btn.dataset.reviewIndex, 1);
+
+            if (allReviews[productIndex].reviews.length === 0) {
+              allReviews.splice(productIndex, 1);
+            }
+
+            localStorage.setItem("gb-hw3-reviews", JSON.stringify(allReviews));
+            renderReviews();
+          });
+        });
+      };
+
+      const renderReviews = () => {
+        const allReviews =
+          JSON.parse(localStorage.getItem("gb-hw3-reviews")) ?? [];
+
+        reviewsEl.innerHTML = allReviews
+          .map((product) => {
+            return /*html*/ `<div class="review__wrapper">
+              <div class="review__header">
+                <h3 class="review__title">
+                  ${product.name}
+                </h3>
+                <button class="review__toggle-btn">
+                  Показать отзывы
+                </button>
+              </div>
+              <div class="review__list review__list_hidden">
+                ${product.reviews
+                  .map((review, reviewIndex) => {
+                    return /*html*/ `<div class="review">
+                  <div class="review__text">
+                    ${review}
+                  </div>
+                  <button
+                    class="review__delete-btn"
+                    data-product-name="${product.name}"
+                    data-review-index="${reviewIndex}"
+                  >
+                    Удалить отзыв
+                  </button>
+                  </div>`;
+                  })
+                  .join("")}
+              </div>
+            </div>`;
+          })
+          .join("");
+
+        setUpButtons(allReviews, renderReviews);
+      };
+
+      renderReviews();
+    </script>
+  </body>
+</html>
